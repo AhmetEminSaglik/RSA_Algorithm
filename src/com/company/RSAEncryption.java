@@ -2,30 +2,36 @@ package com.company;
 
 public class RSAEncryption {
 
-    private int firstPrimeNumber;
-    private int secondPrimeNumber;
-    CharacterCodeValue characterCodeValue;
+    private final int firstPrimeNumber;
+    private final int secondPrimeNumber;
+    public static int[] publicKey = new int[2];
+    public static int privateKey;
+    ASCIICodeCharacterValue asciiCodeCharacterValue = new ASCIICodeCharacterValue();
     EncryptionFundamental encryptionFundamental;
 
-    public RSAEncryption(int firstPrimeNumber, int secondPrimeNumber, CharacterCodeValue characterCodeValue) {
+    public RSAEncryption(int firstPrimeNumber, int secondPrimeNumber) {
 
         this.firstPrimeNumber = firstPrimeNumber;
         this.secondPrimeNumber = secondPrimeNumber;
-        this.characterCodeValue = characterCodeValue;
-        encryptionFundamental = new EncryptionFundamental(firstPrimeNumber, secondPrimeNumber, characterCodeValue);
-        calculateFundamentals();
+        encryptionFundamental = new EncryptionFundamental(firstPrimeNumber, secondPrimeNumber);
 
     }
 
 
     void calculateFundamentals() {
         encryptionFundamental.prepareAllValues();
+        publicKey[0] = encryptionFundamental.getNValue();
+        publicKey[1] = encryptionFundamental.getEValue();
+        privateKey = encryptionFundamental.getDValue();
+        System.out.println("public key : (" + publicKey[0] + "," + publicKey[1] + ")");
+        System.out.println("private key : (" + privateKey + ")");
 
 
     }
 
     String encryptText(String text) {
         calculateFundamentals();
+
         StringBuilder chiperText = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
             if (text.charAt(i) == ' ') {
@@ -41,15 +47,10 @@ public class RSAEncryption {
     }
 
     char encryptCharacter(char character) {
-        System.out.println(" SIFRELEME character : " + character);
-        int characterValue = characterCodeValue.getValueOfCharacter(character);
+        int characterValue = asciiCodeCharacterValue.getValueOfCharacter(character);
         characterValue -= 97;
-
         int calculation = powWithMod(characterValue, encryptionFundamental.getEValue());
-        System.out.println("--- calculation : " + calculation % encryptionFundamental.getNValue());
-
-//        int calculatedValue = (int) calculation;
-        return characterCodeValue.getCharacterOfValue(calculation);
+        return asciiCodeCharacterValue.getCharacterOfValue(calculation);
 
     }
 
@@ -73,21 +74,14 @@ public class RSAEncryption {
                 decryptedText.append(decryptCharacter(chipsetText.charAt(i)));
             }
         }
-        System.out.println("Sifreli  gelmis hali : " + chipsetText);
-        System.out.println("Cozulmus  hali : " + decryptedText);
+        System.out.println(decryptedText);
     }
 
     char decryptCharacter(char character) {
-        int characterValue = characterCodeValue.getValueOfCharacter(character);
+        int characterValue = asciiCodeCharacterValue.getValueOfCharacter(character);
         characterValue -= 97;
         int calculation = powWithMod(characterValue, encryptionFundamental.getDValue());
-        System.out.println("characterValue : " + characterValue);
-        System.out.println("pow : " + powWithMod(characterValue, encryptionFundamental.getDValue()));
-        System.out.println(" sayi : " + calculation + " modu :" + (calculation % encryptionFundamental.getNValue()));
-        calculation %= encryptionFundamental.getNValue();
-//        int calculatedValue = (int) calculation;
-
-        return characterCodeValue.getCharacterOfValue(calculation);
+        return asciiCodeCharacterValue.getCharacterOfValue(calculation);
 
     }
 }

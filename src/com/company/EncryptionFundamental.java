@@ -8,22 +8,26 @@ public class EncryptionFundamental {
     private int totientValue;
     private int eValue; // public key;
     private int dValue;
+    private int lClear = 0;
+    private int lChipher = 0;
     private boolean selecteablePrimeNumberMatrix[];
-    CharacterCodeValue characterCodeValue;
+    ASCIICodeCharacterValue asciiCodeCharacterValue = new ASCIICodeCharacterValue();
 
-    public EncryptionFundamental(int firstPrimeNumber, int secondPrimeNumber, CharacterCodeValue characterCodeValue) {
+    public EncryptionFundamental(int firstPrimeNumber, int secondPrimeNumber) {
         this.firstPrimeNumber = firstPrimeNumber;
         this.secondPrimeNumber = secondPrimeNumber;
-        this.characterCodeValue = characterCodeValue;
     }
 
     public void prepareAllValues() {
 
         calculateNValue();
+        calculateLChiper();
         calculateTotientValue();
-        createSelecteablPrimeNumberMatrix(nValue);
+        createSelecteablPrimeNumberMatrix(totientValue);
         calculateEValue();
         calculateDValue();
+        calculateLClear();
+
         printPreparedValues();
     }
 
@@ -39,15 +43,19 @@ public class EncryptionFundamental {
         nValue = firstPrimeNumber * secondPrimeNumber;
     }
 
+    void calculateLChiper() {
+        lChipher = nValue;
+    }
+
     void calculateTotientValue() {
         totientValue = (firstPrimeNumber - 1) * (secondPrimeNumber - 1);
     }
 
     void calculateEValue() {
-        for (int i = 2; i < nValue; i++) {
-            if (nValue % i == 0 || totientValue % i == 0) {
+        for (int i = 2; i < totientValue; i++) {
+            if (/*nValue % i == 0 ||*/ totientValue % i == 0) {
                 if (selecteablePrimeNumberMatrix[i] == true) {
-                    for (int j = 1; j * i < nValue; j++) {
+                    for (int j = 1; j * i < totientValue; j++) {
                         selecteablePrimeNumberMatrix[i * j] = false;
                     }
                 }
@@ -61,15 +69,30 @@ public class EncryptionFundamental {
         }
     }
 
-    void calculateDValue() {
+    void calculateDValue() {  //1 < d < toteient olmali
         int i = 1;
         while (true) {
-            if (eValue * i % totientValue == 1 && i != eValue) {
+            if (eValue * i % totientValue == 1 /*&& i != eValue*/) { // internetteki matematik profosoru ayni geldidgi icin bir sonraki adima oteliyordu
                 dValue = i;
                 return;
             }
             i++;
         }
+    }
+
+    void calculateLClear() {
+        int step = 10;
+//        System.out.println("Islem oncesi l value " +lClear);
+        while (true) {
+            if (nValue / step > 0) {
+                lClear++;
+                step *= 10;
+//                System.out.println(" islemler : "+(nValue/step));
+            } else {
+                break;
+            }
+        }
+        System.out.println("n Sayisi " + getNValue() + " Hesaplanan L basamak degeri " + lClear);
     }
 
     void createSelecteablPrimeNumberMatrix(int value) {
@@ -94,6 +117,14 @@ public class EncryptionFundamental {
 
     public int getDValue() {
         return dValue;
+    }
+
+    public int getlClear() {
+        return lClear;
+    }
+
+    public int getlChipher() {
+        return lChipher;
     }
 
     public boolean[] getSelecteablePrimeNumberMatrix() {
